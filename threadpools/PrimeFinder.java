@@ -58,14 +58,13 @@ class PrimeFinder implements Callable<Integer> {
 			PrimeFinder[] primeFinders = new PrimeFinder[numThreads];
 			for (int i = 0; i < numThreads; i++) {
 				primeFinder = new PrimeFinder(MIN + i, MAX, numThreads);
-				futures[i] = executor.submit(primeFinder);
 			}
-			Future<Integer>[] futures = new Future[numThreads];
 			
 			// Start timing.
 			long start = System.nanoTime();
 			
 			// Submit tasks.
+			Future<Integer>[] futures = new Future[numThreads];
 			for (int i = 0; i < numThreads; i++) {
 				futures[i] = executor.submit(primeFinders[i]);
 			}

@@ -10,15 +10,15 @@ class Program1 {
 	public static void main(String[] args) {
 		String[] words = new String[] { "anna", "bo", "cecilia", "dan", "erika" };
 
-		// Abstract class.
+		// Anonymous class.
 		Comparator<String> comparator1 = new Comparator<String>() {
 			public int compare(String str1, String str2) {
-			if (str1.length() < str2.length())
-				return -1;
-			else if (str1.length() > str2.length())
-				return 1;
-			else
-				return 0;
+				if (str1.length() < str2.length())
+					return -1;
+				else if (str1.length() > str2.length())
+					return 1;
+				else
+					return 0;
 			}
 		};
 		
