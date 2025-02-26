@@ -1,43 +1,53 @@
-// Peter Idestam-Almquist, 2017-01-24.
-// Not the same lock.
+// Peter Idestam-Almquist, 2025-02-21.
+// Read-write-lock.
 
 package peteria.javaconcurrency.locks;
 
-import peteria.javaconcurrency.annotation.NotThreadSafe;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import peteria.javaconcurrency.annotation.ThreadSafe;
 import peteria.javaconcurrency.annotation.GuardedBy;
 
-@NotThreadSafe
 class Incrementer8 implements Runnable {
-	@GuardedBy("lock1")
-	private int myInt1 = 0;
-	@GuardedBy("lock2")
-	private int myInt2 = 0;
-	private Object lock1 = new Object();
-	private Object lock2 = new Object();
+	private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+	@GuardedBy("readWriteLock")
+	private int myInt = 0;
 	
 	public void run() {
+		int sum = 0;
 		for (int i = 0; i < 100000; i++) {
-			if ((myInt1 + myInt2) % 2 == 0)
-				synchronized (lock1) { myInt1++; }
-			else
-				synchronized (lock2) { myInt2++; }
+			if (i % 10 == 0) {
+				try {
+					readWriteLock.writeLock().lock();
+					myInt++;
+				}
+				finally {
+					readWriteLock.writeLock().unlock();
+				}
+			}
+			try {
+				readWriteLock.readLock().lock();
+				sum = sum + myInt;
+			}
+			finally {
+				readWriteLock.readLock().unlock();
+			}
 		}
+		System.out.println("sum = " + sum);
 	}
 	
 	public static void main(String[] args) {
 		Incrementer8 incrementer = new Incrementer8();
 		Thread thread1 = new Thread(incrementer);
 		Thread thread2 = new Thread(incrementer);
-		try { 
+		try {
 			thread1.start(); 
-			thread2.start();
-			thread1.join(); 
-			thread2.join(); 
+			thread2.start(); 
+			thread1.join();
+			thread2.join();
 		}
 		catch (InterruptedException e) { 
 			System.out.println(e);
 		}
-		System.out.println("myInt1 = " + incrementer.myInt1);
-		System.out.println("myInt2 = " + incrementer.myInt2);
+		System.out.println("myInt = " + incrementer.myInt);
     }
 }
